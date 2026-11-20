@@ -1,0 +1,156 @@
+:root {
+  --tinta: #1E2A44;
+  --papel: #FFFFFF;
+  --fundo: #EEF1F6;
+  --linha: #CDD4E0;
+  --suave: #5B6680;
+  --azul: #2F5BD3;
+  --aberto: #2F5BD3;
+  --andamento: #C27A00;
+  --resolvido: #1F8A4C;
+  --alta: #C8322B;
+  --media: #C27A00;
+  --baixa: #5B6680;
+  font-family: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tinta: #E6EAF2;
+    --papel: #1B2232;
+    --fundo: #121722;
+    --linha: #2E3850;
+    --suave: #9AA5BD;
+    --azul: #7B9BFF;
+    --aberto: #7B9BFF;
+    --andamento: #F0B44C;
+    --resolvido: #4CC783;
+    --alta: #FF6B61;
+    --media: #F0B44C;
+    --baixa: #9AA5BD;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--tinta); line-height: 1.5; }
+
+.topo {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  background: var(--papel); border-bottom: 1px solid var(--linha);
+}
+.marca { display: flex; align-items: center; gap: .75rem; }
+.logo { font-size: 2rem; }
+.marca h1 { margin: 0; font-size: 1.4rem; }
+.marca p { margin: 0; color: var(--suave); font-size: .9rem; }
+
+main { max-width: 1000px; margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 2rem); }
+
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer;
+  padding: .6rem 1.1rem; border-radius: 8px;
+  border: 1px solid var(--linha); background: var(--papel); color: var(--tinta);
+}
+.btn:hover { border-color: var(--suave); }
+.btn-principal { background: var(--azul); border-color: var(--azul); color: #fff; }
+.btn-principal:hover { filter: brightness(1.1); }
+.btn-perigo { color: var(--alta); }
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+
+/* Resumo */
+.resumo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.contador {
+  background: var(--papel); border: 1px solid var(--linha); border-radius: 10px;
+  padding: 1rem; border-left: 5px solid var(--cor, var(--suave));
+}
+.contador[data-status="Aberto"] { --cor: var(--aberto); }
+.contador[data-status="Em andamento"] { --cor: var(--andamento); }
+.contador[data-status="Resolvido"] { --cor: var(--resolvido); }
+.contador.alerta { --cor: var(--alta); }
+.contador strong { display: block; font-size: 2rem; line-height: 1.1; }
+.contador span { color: var(--suave); font-size: .9rem; }
+
+/* Filtros */
+.filtros { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.filtros input { flex: 1 1 240px; }
+input, select, textarea {
+  font: inherit; color: var(--tinta); background: var(--papel);
+  border: 1px solid var(--linha); border-radius: 8px; padding: .6rem .75rem; width: 100%;
+}
+.filtros select { width: auto; }
+
+/* Lista de chamados em formato de "ticket" com picote */
+.lista { display: grid; gap: 1rem; }
+.ticket {
+  display: grid; grid-template-columns: 110px 1fr; background: var(--papel);
+  border: 1px solid var(--linha); border-radius: 10px; overflow: hidden; cursor: pointer;
+  text-align: left; font: inherit; color: inherit; padding: 0; width: 100%;
+}
+.ticket:hover { border-color: var(--suave); }
+.canhoto {
+  position: relative; padding: 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  border-right: 2px dashed var(--linha); background: color-mix(in srgb, var(--cor-status) 10%, var(--papel));
+}
+.canhoto::before, .canhoto::after {
+  content: ""; position: absolute; right: -9px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--fundo); border: 1px solid var(--linha);
+}
+.canhoto::before { top: -9px; }
+.canhoto::after { bottom: -9px; }
+.canhoto .num { font-size: 1.5rem; font-weight: 700; color: var(--cor-status); }
+.canhoto .rotulo { font-size: .75rem; color: var(--suave); }
+.corpo { padding: 1rem 1.25rem; min-width: 0; }
+.corpo h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.meta { color: var(--suave); font-size: .85rem; margin: 0 0 .5rem; }
+.etiquetas { display: flex; gap: .5rem; flex-wrap: wrap; }
+.etiqueta {
+  font-size: .8rem; font-weight: 600; padding: .15rem .6rem; border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.st-Aberto { --cor-status: var(--aberto); }
+.st-Em { --cor-status: var(--andamento); }
+.st-Resolvido { --cor-status: var(--resolvido); }
+.etiqueta.status { color: var(--cor-status); }
+.p-Alta { color: var(--alta); }
+.p-Média { color: var(--media); }
+.p-Baixa { color: var(--baixa); }
+
+.vazio { text-align: center; padding: 3rem 1rem; color: var(--suave); background: var(--papel); border: 1px dashed var(--linha); border-radius: 10px; }
+
+/* Modais */
+dialog {
+  border: 1px solid var(--linha); border-radius: 12px; padding: 1.5rem;
+  width: min(560px, 94vw); background: var(--papel); color: var(--tinta);
+}
+dialog::backdrop { background: rgba(10, 15, 30, .55); }
+dialog h2 { margin-top: 0; }
+form label { display: block; margin-bottom: 1rem; font-weight: 500; font-size: .95rem; }
+form label input, form label select, form label textarea { margin-top: .3rem; font-weight: 400; }
+.linha { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.erro { color: var(--alta); display: block; min-height: 1em; font-weight: 400; }
+.acoes { display: flex; justify-content: flex-end; gap: .75rem; flex-wrap: wrap; margin-top: .5rem; }
+.detalhe-desc { white-space: pre-wrap; background: var(--fundo); padding: .75rem 1rem; border-radius: 8px; }
+.historico { list-style: none; padding: 0; margin: .5rem 0 1rem; border-left: 2px solid var(--linha); }
+.historico li { padding: .25rem 0 .25rem 1rem; font-size: .9rem; }
+.historico time { color: var(--suave); display: block; font-size: .8rem; }
+.trocar-status { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }
+.trocar-status select { width: auto; }
+
+/* Aviso (toast) */
+.aviso {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translate(-50%, 150%);
+  background: var(--tinta); color: var(--papel); padding: .75rem 1.25rem; border-radius: 8px;
+  transition: transform .25s ease; font-weight: 500;
+}
+.aviso.mostrar { transform: translate(-50%, 0); }
+
+.rodape { text-align: center; color: var(--suave); font-size: .85rem; padding: 2rem 1rem; }
+
+@media (max-width: 700px) {
+  .resumo { grid-template-columns: repeat(2, 1fr); }
+  .ticket { grid-template-columns: 80px 1fr; }
+  .linha { grid-template-columns: 1fr; }
+  .topo .btn { padding: .5rem .8rem; }
+}
+@media (prefers-reduced-motion: reduce) { .aviso { transition: none; } }

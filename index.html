@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balcão – Sistema de Help Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">🎫</span>
+      <div>
+        <h1>Balcão</h1>
+        <p>Sistema de Help Desk</p>
+      </div>
+    </div>
+    <button class="btn btn-principal" id="btnNovo">Abrir chamado</button>
+  </header>
+
+  <main>
+    <section class="resumo" aria-label="Resumo dos chamados">
+      <div class="contador" data-status="Aberto"><strong id="cAberto">0</strong><span>Abertos</span></div>
+      <div class="contador" data-status="Em andamento"><strong id="cAndamento">0</strong><span>Em andamento</span></div>
+      <div class="contador" data-status="Resolvido"><strong id="cResolvido">0</strong><span>Resolvidos</span></div>
+      <div class="contador alerta"><strong id="cUrgente">0</strong><span>Prioridade alta pendentes</span></div>
+    </section>
+
+    <section class="filtros" aria-label="Filtros">
+      <input type="search" id="busca" placeholder="Buscar por título, solicitante ou nº">
+      <select id="fStatus" aria-label="Filtrar por status">
+        <option value="">Todos os status</option>
+        <option>Aberto</option>
+        <option>Em andamento</option>
+        <option>Resolvido</option>
+      </select>
+      <select id="fPrioridade" aria-label="Filtrar por prioridade">
+        <option value="">Todas as prioridades</option>
+        <option>Alta</option>
+        <option>Média</option>
+        <option>Baixa</option>
+      </select>
+    </section>
+
+    <section id="lista" class="lista" aria-live="polite"></section>
+  </main>
+
+  <!-- Modal: novo / editar chamado -->
+  <dialog id="modalForm">
+    <form id="formChamado" novalidate>
+      <h2 id="tituloForm">Abrir chamado</h2>
+      <input type="hidden" id="idEdicao">
+      <label>Título do problema
+        <input type="text" id="titulo" maxlength="80" required>
+        <small class="erro" data-para="titulo"></small>
+      </label>
+      <label>Seu nome
+        <input type="text" id="solicitante" maxlength="60" required>
+        <small class="erro" data-para="solicitante"></small>
+      </label>
+      <div class="linha">
+        <label>Categoria
+          <select id="categoria">
+            <option>Hardware</option>
+            <option>Software</option>
+            <option>Rede / Internet</option>
+            <option>Acesso / Senha</option>
+            <option>Outros</option>
+          </select>
+        </label>
+        <label>Prioridade
+          <select id="prioridade">
+            <option>Baixa</option>
+            <option selected>Média</option>
+            <option>Alta</option>
+          </select>
+        </label>
+      </div>
+      <label>Descrição
+        <textarea id="descricao" rows="4" maxlength="500" required></textarea>
+        <small class="erro" data-para="descricao"></small>
+      </label>
+      <div class="acoes">
+        <button type="button" class="btn" data-fechar>Cancelar</button>
+        <button type="submit" class="btn btn-principal" id="btnSalvar">Abrir chamado</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: detalhes -->
+  <dialog id="modalDetalhe">
+    <div id="conteudoDetalhe"></div>
+  </dialog>
+
+  <div id="aviso" class="aviso" role="status"></div>
+
+  <footer class="rodape">Projeto acadêmico – Sistema de Help Desk</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
