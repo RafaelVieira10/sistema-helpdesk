@@ -4,32 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Balcão – Sistema de Help Desk</title>
+  <meta name="description" content="Sistema web para abertura e acompanhamento de chamados de suporte técnico.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232F5BD3' d='M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a3 3 0 0 0 0 6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a3 3 0 0 0 0-6z'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    // Aplica o tema salvo antes de desenhar a página (evita "piscar")
+    try { const t = localStorage.getItem("helpdesk_tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
 </head>
 <body>
   <header class="topo">
     <div class="marca">
-      <span class="logo" aria-hidden="true">🎫</span>
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a3 3 0 0 0 0 6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a3 3 0 0 0 0-6z"/>
+        <path class="picote" d="M9 5v14" />
+      </svg>
       <div>
         <h1>Balcão</h1>
         <p>Sistema de Help Desk</p>
       </div>
     </div>
-    <button class="btn btn-principal" id="btnNovo">Abrir chamado</button>
+    <div class="topo-acoes">
+      <button class="btn btn-icone" id="btnTema" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
+        <span aria-hidden="true" id="iconeTema">◐</span>
+      </button>
+      <button class="btn btn-principal" id="btnNovo" title="Atalho: tecla N">+ Abrir chamado</button>
+    </div>
   </header>
 
   <main>
     <section class="resumo" aria-label="Resumo dos chamados">
-      <div class="contador" data-status="Aberto"><strong id="cAberto">0</strong><span>Abertos</span></div>
-      <div class="contador" data-status="Em andamento"><strong id="cAndamento">0</strong><span>Em andamento</span></div>
-      <div class="contador" data-status="Resolvido"><strong id="cResolvido">0</strong><span>Resolvidos</span></div>
-      <div class="contador alerta"><strong id="cUrgente">0</strong><span>Prioridade alta pendentes</span></div>
+      <button class="contador" data-status="Aberto" aria-pressed="false">
+        <strong id="cAberto">0</strong><span>Abertos</span>
+      </button>
+      <button class="contador" data-status="Em andamento" aria-pressed="false">
+        <strong id="cAndamento">0</strong><span>Em andamento</span>
+      </button>
+      <button class="contador" data-status="Resolvido" aria-pressed="false">
+        <strong id="cResolvido">0</strong><span>Resolvidos</span>
+      </button>
+      <button class="contador alerta" id="contadorAtraso" aria-pressed="false">
+        <strong id="cAtrasado">0</strong><span>Fora do prazo (SLA)</span>
+      </button>
+    </section>
+
+    <section class="indicadores" aria-label="Indicadores">
+      <div class="cartao">
+        <h2>Chamados por categoria</h2>
+        <div id="graficoCategorias" class="grafico"></div>
+      </div>
+      <div class="cartao">
+        <h2>Desempenho</h2>
+        <dl class="kpis">
+          <div><dt>Tempo médio de resolução</dt><dd id="kTempo">–</dd></div>
+          <div><dt>Resolvidos dentro do prazo</dt><dd id="kSla">–</dd></div>
+          <div><dt>Prioridade alta pendentes</dt><dd id="kAlta">0</dd></div>
+          <div><dt>Sem técnico atribuído</dt><dd id="kSemTecnico">0</dd></div>
+        </dl>
+      </div>
     </section>
 
     <section class="filtros" aria-label="Filtros">
-      <input type="search" id="busca" placeholder="Buscar por título, solicitante ou nº">
+      <input type="search" id="busca" placeholder="Buscar por título, solicitante, descrição ou nº">
       <select id="fStatus" aria-label="Filtrar por status">
         <option value="">Todos os status</option>
         <option>Aberto</option>
@@ -42,13 +80,29 @@
         <option>Média</option>
         <option>Baixa</option>
       </select>
+      <select id="fCategoria" aria-label="Filtrar por categoria">
+        <option value="">Todas as categorias</option>
+      </select>
+      <select id="ordem" aria-label="Ordenar">
+        <option value="prioridade">Ordenar: prioridade</option>
+        <option value="recentes">Ordenar: mais recentes</option>
+        <option value="antigos">Ordenar: mais antigos</option>
+      </select>
     </section>
+
+    <div class="barra-lista">
+      <span id="totalLista" aria-live="polite"></span>
+      <div>
+        <button class="btn btn-link" id="btnLimpar" hidden>Limpar filtros</button>
+        <button class="btn btn-link" id="btnExportar">Exportar CSV</button>
+      </div>
+    </div>
 
     <section id="lista" class="lista" aria-live="polite"></section>
   </main>
 
   <!-- Modal: novo / editar chamado -->
-  <dialog id="modalForm">
+  <dialog id="modalForm" aria-labelledby="tituloForm">
     <form id="formChamado" novalidate>
       <h2 id="tituloForm">Abrir chamado</h2>
       <input type="hidden" id="idEdicao">
@@ -62,13 +116,7 @@
       </label>
       <div class="linha">
         <label>Categoria
-          <select id="categoria">
-            <option>Hardware</option>
-            <option>Software</option>
-            <option>Rede / Internet</option>
-            <option>Acesso / Senha</option>
-            <option>Outros</option>
-          </select>
+          <select id="categoria"></select>
         </label>
         <label>Prioridade
           <select id="prioridade">
@@ -76,11 +124,15 @@
             <option selected>Média</option>
             <option>Alta</option>
           </select>
+          <small class="dica" id="dicaSla"></small>
         </label>
       </div>
       <label>Descrição
         <textarea id="descricao" rows="4" maxlength="500" required></textarea>
-        <small class="erro" data-para="descricao"></small>
+        <span class="campo-rodape">
+          <small class="erro" data-para="descricao"></small>
+          <small class="dica" id="contaDescricao">0/500</small>
+        </span>
       </label>
       <div class="acoes">
         <button type="button" class="btn" data-fechar>Cancelar</button>
@@ -90,13 +142,28 @@
   </dialog>
 
   <!-- Modal: detalhes -->
-  <dialog id="modalDetalhe">
+  <dialog id="modalDetalhe" class="largo">
     <div id="conteudoDetalhe"></div>
+  </dialog>
+
+  <!-- Modal: confirmação -->
+  <dialog id="modalConfirmar" class="estreito">
+    <form method="dialog">
+      <h2 id="confirmarTitulo">Confirmar</h2>
+      <p id="confirmarTexto"></p>
+      <div class="acoes">
+        <button class="btn" value="nao">Cancelar</button>
+        <button class="btn btn-perigo-cheio" value="sim" id="confirmarOk">Confirmar</button>
+      </div>
+    </form>
   </dialog>
 
   <div id="aviso" class="aviso" role="status"></div>
 
-  <footer class="rodape">Projeto acadêmico – Sistema de Help Desk</footer>
+  <footer class="rodape">
+    Projeto acadêmico – Sistema de Help Desk ·
+    <button class="btn-link" id="btnRestaurar">Restaurar dados de exemplo</button>
+  </footer>
 
   <script src="script.js"></script>
 </body>
